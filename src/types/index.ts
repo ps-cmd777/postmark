@@ -21,8 +21,18 @@ export type FailureMode =
   | "multiple_testing"
   | "survivorship_bias";
 
-export type ExperimentStatus = "completed" | "running" | "killed" | "inconclusive";
-export type ExperimentDecision = "shipped" | "killed" | "iterated" | "inconclusive" | "reverted";
+export type Lifecycle =
+  | "draft"
+  | "in_review"
+  | "scheduled"
+  | "live"
+  | "paused"
+  | "concluded"
+  | "archived";
+
+// Decision is null until lifecycle is "concluded".
+// Validated at the data boundary by Zod in Phase 2.
+export type Decision = "shipped" | "killed" | "inconclusive" | "iterated" | "reverted";
 
 export interface GuardrailMetric {
   name: string;
@@ -44,8 +54,8 @@ export interface Experiment {
   title: string;
   hypothesis: string;
   category: ExperimentCategory;
-  status: ExperimentStatus;
-  decision: ExperimentDecision;
+  lifecycle: Lifecycle;
+  decision: Decision | null;
   start_date: string;
   end_date: string | null;
   duration_days: number;

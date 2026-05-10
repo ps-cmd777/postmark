@@ -105,10 +105,11 @@ interface Experiment {
   title: string;                 // "Onboarding tutorial video for new free users"
   hypothesis: string;            // Full hypothesis statement
   category: ExperimentCategory;  // onboarding | pricing | paywall | retention | growth_loop | notification | search | social
-  status: 'completed' | 'running' | 'killed' | 'inconclusive';
-  decision: 'shipped' | 'killed' | 'iterated' | 'inconclusive' | 'reverted';
+  lifecycle: 'draft' | 'in_review' | 'scheduled' | 'live' | 'paused' | 'concluded' | 'archived';
+  decision: 'shipped' | 'killed' | 'iterated' | 'inconclusive' | 'reverted' | null;
+  // decision is null until lifecycle === 'concluded'. Enforced by Zod at the data boundary (Phase 2).
   start_date: string;            // ISO date
-  end_date: string | null;       // ISO date or null if running
+  end_date: string | null;       // ISO date or null if lifecycle is not yet concluded
   duration_days: number;
   segment: string;               // "Free users, iOS, US"
   segment_size: number;          // 245000
@@ -338,7 +339,7 @@ postmark/
 **Goal:** Experiment status pages auto-refresh as Live Artifacts.
 
 - Build `/experiment/[id]` page showing full experiment detail
-- For experiments with `status: 'running'`, render the status panel as a Live Artifact via Anthropic's Live Artifacts API
+- For experiments with `lifecycle: 'live'`, render the status panel as a Live Artifact via Anthropic's Live Artifacts API
 - Synthetic data ticker simulates real-time updates (current lift, current p-value, current sample)
 - Document this clearly in the README — it's the 2026 differentiator
 
