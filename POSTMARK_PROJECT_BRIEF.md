@@ -83,7 +83,7 @@ The product cleverness is in the design, not infrastructure.
 | **Backend** | Next.js API routes (no separate server) | Keep it simple, one deploy unit |
 | **Database** | SQLite via better-sqlite3 (local file) | No external DB to manage, ships with seed data baked in |
 | **Vector search** | sqlite-vec extension OR simple cosine over stored embeddings | Lightweight, no Pinecone/Weaviate needed |
-| **Embeddings** | Anthropic embeddings API (or OpenAI text-embedding-3-small as fallback) | Either works |
+| **Embeddings** | Voyage AI (voyage-3-large, 1024 dimensions) | Voyage is Anthropic's officially recommended embedding partner; pairs cleanly with Claude for generation. Anthropic does not sell embeddings directly. |
 | **LLM** | Anthropic Claude API (claude-opus-4-7 for synthesis, claude-haiku-4-5 for routine tasks) | Cost-tuned |
 | **Live Artifacts** | Anthropic Live Artifacts API | The 2026 differentiator |
 | **MCP** | Custom Python MCP server (Phase 5 only) using FastMCP | Adds protocol-layer signal |
