@@ -108,17 +108,20 @@ interface Experiment {
   lifecycle: 'draft' | 'in_review' | 'scheduled' | 'live' | 'paused' | 'concluded' | 'archived';
   decision: 'shipped' | 'killed' | 'iterated' | 'inconclusive' | 'reverted' | null;
   // decision is null until lifecycle === 'concluded'. Enforced by Zod at the data boundary (Phase 2).
-  start_date: string;            // ISO date
-  end_date: string | null;       // ISO date or null if lifecycle is not yet concluded
-  duration_days: number;
+  // Measurement fields below are null when the experiment has not yet produced them
+  // (draft / in_review / scheduled). Distinguish null ("doesn't exist yet") from a real measured 0.
+  // Live and paused experiments report interim values (real, non-null).
+  start_date: string | null;     // ISO date; null when not yet launched
+  end_date: string | null;       // ISO date; null when lifecycle is not yet concluded
+  duration_days: number;         // planned or actual duration; always populated
   segment: string;               // "Free users, iOS, US"
-  segment_size: number;          // 245000
+  segment_size: number;          // 245000 — planned audience size
   primary_metric: string;        // "D7 retention"
-  primary_metric_baseline: number;
-  primary_metric_treatment: number;
-  lift_percent: number;          // 3.1
-  p_value: number;               // 0.04
-  sample_size: number;
+  primary_metric_baseline: number;          // current-production reading; always populated
+  primary_metric_treatment: number | null;  // null until measured
+  lift_percent: number | null;              // 3.1; null until measured
+  p_value: number | null;                   // 0.04; null until measured
+  sample_size: number | null;               // null until users are enrolled
   guardrail_metrics: GuardrailMetric[];
   segment_breakdown: SegmentResult[];
   what_we_learned: string;       // 1-3 sentences, the lesson
@@ -131,10 +134,10 @@ interface Experiment {
 
 interface GuardrailMetric {
   name: string;
-  baseline: number;
-  treatment: number;
-  delta_percent: number;
-  status: 'pass' | 'warn' | 'fail';
+  baseline: number;                   // current-production reading; always populated
+  treatment: number | null;           // null when not yet measured
+  delta_percent: number | null;       // null when treatment is null
+  status: 'pass' | 'warn' | 'fail' | 'pending';  // 'pending' = monitored but no signal yet
 }
 
 interface SegmentResult {
