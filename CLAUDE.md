@@ -19,4 +19,13 @@ Auth, multi-tenancy, real Statsig/Eppo integration, mobile app, email/Slack noti
 
 ## Current phase
 
-**Phase 1 — Skeleton.** Next.js 16 + Tailwind v4 + TS, folder structure per brief §8, dark theme, hero page, CI. Database, embeddings, search, pre-flight, Live Artifacts, MCP, evals all come in later phases.
+**Phase 2 — DB + seed data.** SQLite + sqlite-vec scaffolded, schema migrated, `/api/health` returns real counts. Seed data being built in batches (batch 1 = exp_001–010, hand-curated; remaining 40 to follow). Embeddings (Voyage `voyage-3-large`, 1024 dims) and Zod validators come next.
+
+## Phase 8 — pre-push checklist
+
+Before pushing to public GitHub, run both as a final pass:
+
+- **`/security-review`** — fresh sanity check on the final branch (we did a manual audit in Phase 1, but secrets/RLS/rate-limit drift accumulates).
+- **`/simplify`** — review changed code across the whole project for reuse, dead code, and quality issues before a hiring manager reads it.
+
+When wiring up the Anthropic SDK in Phase 2.3+, the **`claude-api`** skill should auto-engage. Let it run — it enforces prompt caching, streaming, and Claude 4.7 conventions the brief mandates anyway.
