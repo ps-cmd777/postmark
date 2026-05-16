@@ -11,6 +11,11 @@
 --
 -- sqlite-vec loaded eagerly at connection time (see src/lib/db.ts) so
 -- vec_experiments is queryable from the first statement.
+--
+-- Measurement fields (start_date, primary_metric_treatment, lift_percent,
+-- p_value, sample_size) are SQL-nullable. The lifecycle-aware invariant
+-- (null iff pre-launch; set iff terminal) is enforced by Zod in
+-- src/lib/validation.ts, not by the schema.
 
 CREATE TABLE experiments (
   id                         TEXT PRIMARY KEY,
@@ -19,17 +24,17 @@ CREATE TABLE experiments (
   category                   TEXT NOT NULL,
   lifecycle                  TEXT NOT NULL,
   decision                   TEXT,
-  start_date                 TEXT NOT NULL,
+  start_date                 TEXT,
   end_date                   TEXT,
   duration_days              INTEGER NOT NULL,
   segment                    TEXT NOT NULL,
   segment_size               INTEGER NOT NULL,
   primary_metric             TEXT NOT NULL,
   primary_metric_baseline    REAL NOT NULL,
-  primary_metric_treatment   REAL NOT NULL,
-  lift_percent               REAL NOT NULL,
-  p_value                    REAL NOT NULL,
-  sample_size                INTEGER NOT NULL,
+  primary_metric_treatment   REAL,
+  lift_percent               REAL,
+  p_value                    REAL,
+  sample_size                INTEGER,
   guardrail_metrics          TEXT NOT NULL,  -- JSON: GuardrailMetric[]
   segment_breakdown          TEXT NOT NULL,  -- JSON: SegmentResult[]
   what_we_learned            TEXT NOT NULL,

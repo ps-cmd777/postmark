@@ -11,11 +11,18 @@ export async function GET() {
   const lessons = (
     db.prepare("SELECT COUNT(*) AS n FROM lessons").get() as { n: number }
   ).n;
+  const embeddingsCovered = (
+    db.prepare("SELECT COUNT(*) AS n FROM vec_experiments").get() as { n: number }
+  ).n;
 
   return NextResponse.json({
     status: "ok",
     phase: 2,
     experiments,
     lessons,
+    embeddings: {
+      covered: embeddingsCovered,
+      total: experiments,
+    },
   });
 }
