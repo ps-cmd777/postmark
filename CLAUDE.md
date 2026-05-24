@@ -19,7 +19,7 @@ Auth, multi-tenancy, real Statsig/Eppo integration, mobile app, email/Slack noti
 
 ## Current phase
 
-**Phase 2 — DB + seed data.** SQLite + sqlite-vec scaffolded, schema migrated, `/api/health` returns real counts. Seed data being built in batches (batch 1 = exp_001–010, hand-curated; remaining 40 to follow). Embeddings (Voyage `voyage-3-large`, 1024 dims) and Zod validators come next.
+**Phase 3 — Semantic search.** Data foundation is complete: 50 experiments + 50 Voyage embeddings (voyage-3-large, 1024 dims) loaded and queryable in data/postmark.db. /api/health returns real counts. Phase 3 builds the first user-facing feature: type a natural-language query, get ranked past experiments with AI summaries.
 
 ## Phase 8 — pre-push checklist
 
