@@ -4,6 +4,9 @@
 
 import { VoyageAIClient } from "voyageai";
 import type { Experiment } from "@/types";
+import { redactSecrets } from "@/lib/redact";
+
+export { redactSecrets };
 
 const MODEL = "voyage-3-large";
 const DIMENSIONS = 1024;
@@ -19,16 +22,6 @@ function getClient(): VoyageAIClient {
   }
   _client = new VoyageAIClient({ apiKey });
   return _client;
-}
-
-// Redact common API-key patterns before any error message is logged
-// or re-thrown. Guards against accidental key disclosure if an upstream
-// error includes the auth header in its message.
-export function redactSecrets(message: string): string {
-  return message
-    .replace(/pa-[A-Za-z0-9_-]{20,}/g, "[REDACTED:voyage-key]")
-    .replace(/voyage-[A-Za-z0-9_-]{20,}/g, "[REDACTED:voyage-token]")
-    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, "Bearer [REDACTED]");
 }
 
 function buildEmbeddingText(exp: Experiment): string {

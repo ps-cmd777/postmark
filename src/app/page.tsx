@@ -15,18 +15,17 @@ export default function Home() {
       </p>
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-        <button
-          disabled
-          className="cursor-not-allowed rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-4 py-2.5 text-left text-sm text-[var(--color-fg-muted)]"
-        >
-          <span className="font-mono text-[var(--color-fg-muted)]">⌘K</span>
-          &nbsp;&nbsp;Search experiments — coming Phase 3
-        </button>
         <Link
-          href="/preflight"
+          href="/search"
           className="rounded-md bg-[var(--color-accent)] px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
         >
-          Pre-flight check →
+          Try search →
+        </Link>
+        <Link
+          href="/preflight"
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-4 py-2.5 text-center text-sm text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)]"
+        >
+          Pre-flight check — coming Phase 4
         </Link>
       </div>
 
@@ -55,7 +54,7 @@ export default function Home() {
       </section>
 
       <p className="mt-12 font-mono text-xs text-[var(--color-fg-muted)]">
-        v0.0.1 · phase 1 of 8 · synthetic seed
+        v0.0.1 · phase 3 of 8 · synthetic seed
       </p>
     </main>
   );
