@@ -13,6 +13,7 @@
 import { useCallback, useState } from "react";
 import type { SearchHit } from "@/lib/search";
 import ExperimentCard from "./ExperimentCard";
+import ExperimentLink from "./ExperimentLink";
 
 interface ParsedEvent {
   event: string;
@@ -44,28 +45,6 @@ async function* parseSSE(
       yield { event, data: dataLines.join("\n") };
     }
   }
-}
-
-function renderSummaryWithCitations(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const pattern = /\[(exp_\d{3})\]/g;
-  let last = 0;
-  let match: RegExpExecArray | null;
-  let i = 0;
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > last) parts.push(text.slice(last, match.index));
-    parts.push(
-      <span
-        key={`cite-${i++}`}
-        className="mx-0.5 rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-1.5 py-0.5 font-mono text-[0.75rem] text-[var(--color-accent)]"
-      >
-        {match[1]}
-      </span>,
-    );
-    last = match.index + match[0].length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return parts;
 }
 
 export default function SearchBar() {
@@ -179,7 +158,7 @@ export default function SearchBar() {
             </div>
           ) : (
             <p className="mt-3 text-sm leading-7 text-[var(--color-fg)]">
-              {renderSummaryWithCitations(summary)}
+              <ExperimentLink text={summary} />
               {summaryStreaming && (
                 <span className="ml-0.5 inline-block h-4 w-1.5 -translate-y-px animate-pulse bg-[var(--color-accent)] align-middle" />
               )}
