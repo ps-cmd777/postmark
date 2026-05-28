@@ -18,10 +18,10 @@ export default function PreflightPage() {
       <h1 className="mt-4 text-3xl font-semibold tracking-tight">
         Before you launch this experiment.
       </h1>
-      <p className="mt-3 text-sm text-[var(--color-fg-muted)]">
-        Paste a hypothesis you&rsquo;re considering. Postmark retrieves
-        structurally similar past experiments, names the risk, and writes a
-        senior-PM analysis citing the precedents.
+      <p className="mt-3 text-sm leading-7 text-[var(--color-fg-muted)]">
+        Paste a hypothesis you&rsquo;re thinking about testing. Postmark will
+        warn you about similar past experiments that failed — and surface ones
+        that succeeded.
       </p>
 
       <div className="mt-10">

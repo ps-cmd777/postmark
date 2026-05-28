@@ -2,12 +2,14 @@
 // All exp_NNN references in hypothesis / what_we_learned are auto-
 // linked via <ExperimentLink>. Missing IDs → Next's default 404.
 
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import ExperimentLink from "@/components/ExperimentLink";
 import {
   getExperimentById,
   type ExperimentDetail,
 } from "@/lib/experiments";
+import { getPatternsForExperiment } from "@/lib/patterns";
 import {
   DECISION_COLOR,
   MUTED,
@@ -77,6 +79,7 @@ export default async function ExperimentDetailPage({
   const goal = deriveGoal(exp.hypothesis, exp.primary_metric);
   const result = deriveResult(exp);
   const decisionDisplay = deriveDecisionDisplay(exp);
+  const patternMatches = getPatternsForExperiment(exp.id);
 
   return (
     <main className="mx-auto max-w-[768px] px-6 py-12">
@@ -176,6 +179,25 @@ export default async function ExperimentDetailPage({
           ))}
         </div>
       </section>
+
+      {patternMatches.length > 0 && (
+        <section aria-label="Patterns" className="mt-10">
+          <h2 className="text-2xl font-bold tracking-tight text-[var(--color-fg)]">
+            Part of these patterns
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {patternMatches.map((p) => (
+              <Link
+                key={p.id}
+                href={`/lessons#${p.id}`}
+                className="rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2.5 py-1 text-xs text-[var(--color-fg)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              >
+                {p.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <footer className="mt-12 border-t border-[var(--color-border)] pt-6 text-xs text-[var(--color-fg-muted)]">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
