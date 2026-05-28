@@ -154,11 +154,35 @@ function syntheticEmptyCorpus(): {
   };
 }
 
-// ---------- Main entry point ----------
+// ---------- Shared verdict path (used by streamPreflight + MCP) ----------
 
-export async function* streamPreflight(
+// Discriminated result. `continuation` carries the Anthropic call-1
+// response + tool_use_id so the streaming caller can replay them as
+// assistant + tool_result context in call 2. `continuation: null`
+// signals the zero-hit synthetic path — callers handle the synthetic
+// analysis themselves (web stream emits a fixed delta, MCP omits
+// analysis entirely since the tool only returns verdict + precedents).
+export type PreflightVerdictResult =
+  | {
+      ok: true;
+      hits: SearchHit[];
+      verdict: Verdict;
+      continuation: {
+        verdictResponse: Anthropic.Messages.Message;
+        toolUseId: string;
+        userMessage: string;
+        systemBlocks: Array<{
+          type: "text";
+          text: string;
+          cache_control: { type: "ephemeral" };
+        }>;
+      } | null;
+    }
+  | { ok: false; error: string };
+
+export async function runPreflightVerdict(
   hypothesis: string,
-): AsyncGenerator<PreflightEvent, void, unknown> {
+): Promise<PreflightVerdictResult> {
   // 1. Retrieval — reuse Phase 3 pipeline; slice 10 → PREFLIGHT_TOP_K.
   let hits: SearchHit[];
   try {
@@ -166,21 +190,16 @@ export async function* streamPreflight(
     hits = allHits.slice(0, PREFLIGHT_TOP_K);
   } catch (err) {
     const raw = err instanceof Error ? err.message : String(err);
-    yield { type: "error", message: redactSecrets(raw) };
-    return;
+    return { ok: false, error: redactSecrets(raw) };
   }
 
-  yield { type: "precedents", hits };
-
-  // 2. Zero-hit short circuit — no Opus call needed.
+  // 2. Zero-hit short circuit — synthetic verdict, no Opus call.
   if (hits.length === 0) {
-    const { verdict, analysis } = syntheticEmptyCorpus();
-    yield { type: "verdict", verdict };
-    yield { type: "analysis-delta", delta: analysis };
-    return;
+    const { verdict } = syntheticEmptyCorpus();
+    return { ok: true, hits, verdict, continuation: null };
   }
 
-  // 3. Two sequential Opus calls. See header comment for the why.
+  // 3. Forced-tool Opus call 1.
   const client = getClient();
   const userMessage = buildUserMessage(hypothesis, hits);
   const systemBlocks = [
@@ -191,8 +210,7 @@ export async function* streamPreflight(
     },
   ];
 
-  // Call 1: forced tool_use for the verdict (non-streaming).
-  let verdictResponse;
+  let verdictResponse: Anthropic.Messages.Message;
   try {
     verdictResponse = await client.messages.create({
       model: MODEL,
@@ -204,11 +222,10 @@ export async function* streamPreflight(
     });
   } catch (err) {
     const raw = err instanceof Error ? err.message : String(err);
-    yield {
-      type: "error",
-      message: redactSecrets(`Pre-flight verdict call failed: ${raw}`),
+    return {
+      ok: false,
+      error: redactSecrets(`Pre-flight verdict call failed: ${raw}`),
     };
-    return;
   }
 
   const toolBlock = verdictResponse.content.find(
@@ -216,26 +233,62 @@ export async function* streamPreflight(
       b.type === "tool_use" && b.name === VERDICT_TOOL.name,
   );
   if (!toolBlock) {
-    yield {
-      type: "error",
-      message:
+    return {
+      ok: false,
+      error:
         "Pre-flight verdict was malformed (no tool call from model); try resubmitting.",
     };
-    return;
   }
   const verdictParse = VerdictSchema.safeParse(toolBlock.input);
   if (!verdictParse.success) {
-    yield {
-      type: "error",
-      message: "Pre-flight verdict was malformed; try resubmitting.",
+    return {
+      ok: false,
+      error: "Pre-flight verdict was malformed; try resubmitting.",
     };
+  }
+
+  return {
+    ok: true,
+    hits,
+    verdict: verdictParse.data,
+    continuation: {
+      verdictResponse,
+      toolUseId: toolBlock.id,
+      userMessage,
+      systemBlocks,
+    },
+  };
+}
+
+// ---------- Streaming entry point (SSE) ----------
+
+export async function* streamPreflight(
+  hypothesis: string,
+): AsyncGenerator<PreflightEvent, void, unknown> {
+  const result = await runPreflightVerdict(hypothesis);
+
+  if (!result.ok) {
+    yield { type: "error", message: result.error };
     return;
   }
-  yield { type: "verdict", verdict: verdictParse.data };
+
+  yield { type: "precedents", hits: result.hits };
+  yield { type: "verdict", verdict: result.verdict };
+
+  // Zero-hit synthetic path: emit the canned analysis as one delta.
+  if (result.continuation === null) {
+    const { analysis } = syntheticEmptyCorpus();
+    yield { type: "analysis-delta", delta: analysis };
+    return;
+  }
 
   // Call 2: streamed prose continuation. No tools — Opus can't
   // re-invoke submit_verdict. Replay verdictResponse.content as
   // assistant turn so the model has its own verdict in context.
+  const client = getClient();
+  const { verdictResponse, toolUseId, userMessage, systemBlocks } =
+    result.continuation;
+
   try {
     const stream = client.messages.stream({
       model: MODEL,
@@ -249,7 +302,7 @@ export async function* streamPreflight(
           content: [
             {
               type: "tool_result",
-              tool_use_id: toolBlock.id,
+              tool_use_id: toolUseId,
               content: "Verdict recorded.",
             },
             { type: "text", text: ANALYSIS_FOLLOWUP },
