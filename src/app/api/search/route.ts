@@ -10,6 +10,11 @@ import {
   redactSecrets,
   type SearchHitForPrompt,
 } from "@/lib/claude";
+import {
+  SEARCH_LIMIT,
+  checkRateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -54,6 +59,11 @@ function toPromptHits(hits: SearchHit[]): SearchHitForPrompt[] {
 }
 
 export async function POST(req: Request) {
+  // Rate limit BEFORE parsing — cheap path first, avoids any
+  // embedding / Haiku spend on bursts.
+  const limit = checkRateLimit(req, SEARCH_LIMIT);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfterSec);
+
   let parsed;
   try {
     const body = await req.json();

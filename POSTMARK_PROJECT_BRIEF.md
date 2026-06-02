@@ -561,3 +561,12 @@ That's the bar. Don't aim lower.
 ---
 
 *End of master brief. Read in full before each session.*
+
+---
+
+## Appendix — deviations from the brief
+
+These are deliberate departures discovered during implementation. The architecture decisions in §6/§9 stand except where noted here.
+
+- **Deploy target: Render, not Vercel** (§6 "Deployment", §9 Phase 8). Postmark uses `better-sqlite3` against a local SQLite file; Vercel's serverless functions cannot keep that file warm across invocations. Render runs a single long-running Node process, which matches the architecture as-is. Vercel would have required swapping to a hosted DB (Postgres + pgvector or Turso) — out of scope for v1.
+- **MCP server: TypeScript + `@modelcontextprotocol/sdk`, not Python + FastMCP** (§6 "MCP", §9 Phase 7). The corpus retrieval, DB access, and pattern logic are all in `src/lib`. A TS MCP server imports those modules directly; a Python sidecar would have meant reimplementing the same logic and shipping two language toolchains. One language, one deploy unit, full code reuse.

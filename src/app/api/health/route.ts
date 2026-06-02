@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import {
+  HEALTH_LIMIT,
+  checkRateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const limit = checkRateLimit(req, HEALTH_LIMIT);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfterSec);
+
   const db = getDb();
   const experiments = (
     db.prepare("SELECT COUNT(*) AS n FROM experiments").get() as { n: number }
@@ -17,7 +25,6 @@ export async function GET() {
 
   return NextResponse.json({
     status: "ok",
-    phase: 2,
     experiments,
     lessons,
     embeddings: {

@@ -2,6 +2,9 @@
   "name": "postmark",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,12 +19,15 @@
     "@anthropic-ai/sdk": "^0.98.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "better-sqlite3": "^12.9.0",
-    "next": "16.2.4",
+    "next": "^16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sqlite-vec": "^0.1.9",
     "voyageai": "^0.2.1",
     "zod": "^4.4.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "^0.21.2",
@@ -31,7 +37,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "^16.2.7",
     "tailwindcss": "^4",
     "tsx": "^4.22.0",
     "typescript": "^5"

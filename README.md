@@ -1,43 +1,91 @@
 # Postmark
 
-> A living memory of your team's product experiments — with AI that warns you before you repeat a mistake.
-
-## Why this exists
-
-Product teams run dozens of A/B tests per quarter. After each one ends, the readout sits in
-Notion or a Statsig dashboard and is essentially forgotten. Six months later, someone proposes
-the same test, runs it, gets the same inconclusive result — wasting a quarter of engineering time.
-
-Postmark is the canonical archive of every experiment, with AI that surfaces relevant past
-learnings *before* a new experiment is launched.
+A memory layer for product experimentation. Built as a portfolio demonstration of Claude + RAG + structured AI judgment applied to a real product problem.
 
 ## What it does
 
-- **Semantic search** across past experiments
-- **Pre-flight check** before launching new ones — surfaces risks, similar past tests, sample-size sanity
-- **Live Artifacts** for running experiments
-- **Senior-analyst critique** on demand
-- **Daily brief** of what's launching, running, shipped, learned
+**Search past experiments by meaning, not keywords.** Ask "have we tested anything around onboarding gates?" and get a ranked list of relevant past experiments with an AI-written summary citing specific tests.
 
-## Status
+**Pre-flight a hypothesis before you launch it.** Paste an experiment idea and get back a structured risk verdict — risk level, named meta-pattern, and a senior-PM analysis grounded in similar past attempts. If your idea is the third forced-action onboarding test, Postmark says so before you ship.
 
-**Phase 1 of 8 — skeleton only.** Database, search, pre-flight, Live Artifacts coming in subsequent phases. See [POSTMARK_PROJECT_BRIEF.md](POSTMARK_PROJECT_BRIEF.md) for the full roadmap.
+**Browse cross-experiment lessons.** Twelve hand-curated meta-patterns surface what 50 experiments collectively teach — what's been confirmed across multiple attempts, what's still emerging, what's been tried only once.
+
+## Live demo
+
+[link to be filled in after deploy]
+
+## How it works
+
+- Next.js 16 (App Router) + TypeScript + Tailwind v4
+- Voyage AI embeddings (`voyage-3-large`, 1024 dims) for semantic retrieval
+- `sqlite-vec` for vector search over a local SQLite file — no external vector DB
+- Anthropic Claude Opus 4.7 for the pre-flight verdict (tool-use + streamed prose), Haiku 4.5 for search summaries
+- All AI responses stream
+- Zod for runtime validation at AI and HTTP boundaries
+- MCP server (TypeScript + `@modelcontextprotocol/sdk`) exposes the same corpus to Claude Desktop
+
+The corpus: 50 hand-curated experiments and 12 cross-experiment patterns from a fictional consumer photo app called Pixmate.
 
 ## Run locally
 
 ```bash
-cp .env.example .env.local   # add your ANTHROPIC_API_KEY (not yet required for Phase 1)
+git clone <repo-url> postmark
+cd postmark
+cp .env.example .env                # then add ANTHROPIC_API_KEY and VOYAGE_API_KEY
 npm install
-npm run dev                  # http://localhost:3000
+npm run seed                        # one-time: applies migrations + embeds the 50-experiment seed
+npm run dev                         # http://localhost:3000
 ```
 
-## Built with
+Requires Node 20+.
 
-Next.js 16 · TypeScript · Tailwind CSS v4 · SQLite (better-sqlite3, Phase 2+) · Anthropic Claude API · Live Artifacts · MCP · Zod
+## MCP server (for Claude Desktop)
 
-## Honest limitations
+Postmark exposes its corpus to AI assistants over MCP. Four read tools — `search_experiments`, `preflight_check`, `get_experiment`, `list_patterns` — all wrap the same library code the web app uses.
 
-- Synthetic seed data (50 experiments, fictional company "Pixmate") — populated in Phase 2
-- Single-user, no auth
-- Live Artifacts will work for synthetic ticker only — production version would connect to Statsig/Eppo
-- Built solo in 14 days with extensive Claude Code assistance — see [CLAUDE.md](CLAUDE.md) for AI context
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "postmark": {
+      "command": "npx",
+      "args": ["tsx", "--env-file=.env", "src/mcp/server.ts"],
+      "cwd": "/absolute/path/to/postmark"
+    }
+  }
+}
+```
+
+Then in Claude Desktop, ask things like "have we tested anything like requiring phone verification on signup?" and watch Claude call the tools.
+
+For local testing without Claude Desktop:
+
+```bash
+npm run mcp:inspect    # opens the MCP inspector UI
+```
+
+## Architecture
+
+- Retrieval: `src/lib/search.ts` (Voyage query embedding + sqlite-vec k-NN)
+- Pre-flight verdict: `src/lib/preflight.ts` (forced tool_use + streamed analysis continuation; shared by SSE and MCP)
+- Patterns: `src/lib/patterns.ts` (hand-curated, not derived from tags)
+- Experiment lookup: `src/lib/experiments.ts`
+- Database singleton + migrations: `src/lib/db.ts`
+- Rate limiting: `src/lib/rate-limit.ts` (in-memory sliding window)
+- MCP server: `src/mcp/server.ts`
+
+## Tech notes
+
+- **The seeded database is committed.** `data/postmark.db` ships in the repo so deployments boot without re-embedding 50 experiments. The corpus is small (4 MB) and stable, so this is the simplest reliable path.
+- **Rate limiting is in-memory.** One process, one Map. Sized for Render's free tier; swap for Redis if it ever needs to scale horizontally.
+- **All Pixmate data is fictional.** No real company, no real users.
+- **Deployed to Render, not Vercel.** Vercel's serverless model doesn't fit `better-sqlite3`'s local file; Render gives a long-running Node process.
+
+## Status
+
+Built as a portfolio project. Not production software. The architecture is honest about its scope: single-user, no auth, in-memory rate limit, committed seed data. Each of those would change for a real product.
+
+## Attribution
+
+Hand-built by Shushan with extensive Claude Code assistance. Pixmate, the consumer photo app whose experiments populate the corpus, is fictional.

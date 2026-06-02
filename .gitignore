@@ -43,7 +43,9 @@ yarn-error.log*
 next-env.d.ts
 
 # postmark
-/data/postmark.db
+# data/postmark.db is COMMITTED — the seeded corpus ships with the
+# repo so Render's free tier boots without re-embedding 50 experiments.
+# Transient SQLite sidecar files stay ignored.
 /data/postmark.db-journal
 /data/postmark.db-wal
 /data/postmark.db-shm

@@ -1,0 +1,39 @@
+# Render service definition. Render reads this on each push and applies
+# any changes. Values entered in the dashboard (e.g. secrets) are NOT
+# overwritten — `sync: false` env vars are managed there.
+#
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web                # HTTP-serving service (vs background worker)
+    name: postmark
+    runtime: node             # Render builds + runs as a Node service.
+                              # package.json "engines.node": ">=20" pins
+                              # the runtime version Render picks.
+    plan: free                # Single instance, sleeps after inactivity.
+                              # Matches the in-memory rate limiter.
+    region: oregon            # Best free-tier availability historically;
+                              # change in dashboard if Oregon is full.
+
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+
+    # Render pings this on a schedule to decide if the service is
+    # healthy. /api/health hits the SQLite DB so a green check also
+    # confirms the bundled corpus loaded.
+    healthCheckPath: /api/health
+
+    # Push to main -> Render rebuilds + redeploys automatically.
+    autoDeploy: true
+
+    envVars:
+      # Required secrets. `sync: false` means: do NOT read from this
+      # file; prompt the operator to enter values in the dashboard.
+      # Values never touch the repo.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: VOYAGE_API_KEY
+        sync: false
+      # Standard production flag — enables Next's prod optimizations.
+      - key: NODE_ENV
+        value: production

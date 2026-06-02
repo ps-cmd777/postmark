@@ -12,6 +12,11 @@
 import { z } from "zod";
 import { streamPreflight } from "@/lib/preflight";
 import { redactSecrets } from "@/lib/redact";
+import {
+  PREFLIGHT_LIMIT,
+  checkRateLimit,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +35,12 @@ function sseEncode(event: string, data: unknown): Uint8Array {
 }
 
 export async function POST(req: Request) {
+  // Rate limit BEFORE parsing — cheap path first, avoids any Opus
+  // spend on bursts. Returns 429 with retry-after; the client's
+  // existing non-2xx JSON handler renders this as an error banner.
+  const limit = checkRateLimit(req, PREFLIGHT_LIMIT);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfterSec);
+
   let parsed;
   try {
     const body = await req.json();

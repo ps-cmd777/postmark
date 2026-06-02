@@ -19,7 +19,14 @@ Auth, multi-tenancy, real Statsig/Eppo integration, mobile app, email/Slack noti
 
 ## Current phase
 
-**Phase 3 — Semantic search.** Data foundation is complete: 50 experiments + 50 Voyage embeddings (voyage-3-large, 1024 dims) loaded and queryable in data/postmark.db. /api/health returns real counts. Phase 3 builds the first user-facing feature: type a natural-language query, get ranked past experiments with AI summaries.
+**Phase 8 — production prep + Render deploy.** Phases 3–7 shipped on main: semantic search, pre-flight verdict (streaming + Zod-validated tool-use), experiment detail pages with cross-reference links, lessons graph (12 hand-curated patterns), and a TypeScript MCP server exposing the corpus to Claude Desktop. Phase 8 adds in-memory rate limiting on the AI-calling routes, commits the seeded SQLite to the repo, ships render.yaml, writes the real README, and runs the security audit before the public push.
+
+## Deviations from the brief
+
+These are deliberate; the brief predates them. See the appendix in POSTMARK_PROJECT_BRIEF.md for the same notes.
+
+- **Deploy target: Render, not Vercel** (brief §6, §9). Vercel's serverless model doesn't fit `better-sqlite3`'s local file; Render runs a long-running Node process.
+- **MCP server: TypeScript + `@modelcontextprotocol/sdk`, not Python + FastMCP** (brief §6, §9, Phase 7). The corpus / retrieval / pattern logic is all in `src/lib`; a TS server imports it directly instead of duplicating it in a Python sidecar.
 
 ## Phase 8 — pre-push checklist
 
