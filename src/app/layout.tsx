@@ -16,7 +16,6 @@ const NAV = [
   { href: "/", label: "Search" },
   { href: "/preflight", label: "Pre-flight" },
   { href: "/lessons", label: "Lessons" },
-  { href: "/brief", label: "Brief" },
 ];
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -45,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="flex-1">{children}</div>
         <footer className="border-t border-[var(--color-border)] px-6 py-4 text-xs text-[var(--color-fg-muted)]">
           <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <span className="font-mono">postmark · phase 1</span>
+            <span className="font-mono">postmark</span>
             <span>seed data: synthetic (Pixmate)</span>
           </div>
         </footer>

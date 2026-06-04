@@ -12,7 +12,7 @@ A memory layer for product experimentation. Built as a portfolio demonstration o
 
 ## Live demo
 
-[link to be filled in after deploy]
+https://postmark-demo.onrender.com
 
 ## How it works
 
