@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=20 <23"
   },
   "scripts": {
     "dev": "next dev",
@@ -18,11 +18,13 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@tailwindcss/postcss": "^4",
     "better-sqlite3": "^12.9.0",
     "next": "^16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "sqlite-vec": "^0.1.9",
+    "tailwindcss": "^4",
     "voyageai": "^0.2.1",
     "zod": "^4.4.3"
   },
@@ -31,14 +33,12 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "^0.21.2",
-    "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^16.2.7",
-    "tailwindcss": "^4",
     "tsx": "^4.22.0",
     "typescript": "^5"
   }
