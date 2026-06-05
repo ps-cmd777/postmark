@@ -15,7 +15,10 @@ services:
     region: oregon            # Best free-tier availability historically;
                               # change in dashboard if Oregon is full.
 
-    buildCommand: npm install && npm run build
+    # `--include=dev` because Render sets NODE_ENV=production, which
+    # otherwise skips devDependencies. Next's build needs typescript,
+    # @types/*, tailwind, etc. `npm ci` pins to package-lock.json.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
 
     # Render pings this on a schedule to decide if the service is
