@@ -25,14 +25,6 @@ const LOCAL_IPS = new Set(["127.0.0.1", "::1", "localhost"]);
 
 const buckets = new Map<string, number[]>();
 
-// Module-load marker. If we see this line printed more than once
-// while diagnosing, the module is being re-evaluated per-request and
-// the in-memory bucket Map can't persist state — that's a different
-// problem class than IP extraction.
-console.error(
-  `[ratelimit] module loaded pid=${process.pid} disabled=${DISABLED} at=${new Date().toISOString()}`,
-);
-
 // Periodic sweep: drop empty arrays so silent keys don't linger. Lazy
 // pruning inside checkRateLimit handles the common path; this just
 // reclaims unused keys. unref() so it never keeps the process alive.
@@ -85,36 +77,16 @@ function extractIp(req: Request): string {
 }
 
 export function checkRateLimit(req: Request, limit: RateLimit): RateLimitCheck {
-  if (DISABLED) {
-    console.error(
-      `[ratelimit] ${limit.key} DISABLED via env (DISABLE_RATE_LIMIT=${process.env.DISABLE_RATE_LIMIT})`,
-    );
-    return { ok: true };
-  }
+  if (DISABLED) return { ok: true };
 
   const ip = extractIp(req);
-  const xff = req.headers.get("x-forwarded-for");
-  const xri = req.headers.get("x-real-ip");
-
-  if (LOCAL_IPS.has(ip)) {
-    console.error(
-      `[ratelimit] ${limit.key} EXEMPT ip=${ip} xff=${JSON.stringify(xff)} xri=${JSON.stringify(xri)}`,
-    );
-    return { ok: true };
-  }
+  if (LOCAL_IPS.has(ip)) return { ok: true };
 
   const bucketKey = `${limit.key}:${ip}`;
   const now = Date.now();
   const cutoff = now - limit.windowMs;
 
   const existing = buckets.get(bucketKey) ?? [];
-  const before = existing.length;
-  // diagnostic — logs one line per request so we can see how IPs map
-  // to buckets in production. Remove after we confirm the limiter
-  // is behaving on Render.
-  console.error(
-    `[ratelimit] ${limit.key} ip=${ip} xff=${JSON.stringify(xff)} xri=${JSON.stringify(xri)} bucketBefore=${before} buckets=${buckets.size}`,
-  );
   // Find the first index >= cutoff. Timestamps are pushed in order
   // so a linear scan from the head is fine for our small windows.
   let firstFresh = 0;
@@ -130,17 +102,11 @@ export function checkRateLimit(req: Request, limit: RateLimit): RateLimitCheck {
       Math.ceil((oldest + limit.windowMs - now) / 1000),
     );
     if (fresh.length !== existing.length) buckets.set(bucketKey, fresh);
-    console.error(
-      `[ratelimit] ${limit.key} DENY ip=${ip} fresh=${fresh.length}/${limit.limit} retryAfterSec=${retryAfterSec}`,
-    );
     return { ok: false, retryAfterSec };
   }
 
   fresh.push(now);
   buckets.set(bucketKey, fresh);
-  console.error(
-    `[ratelimit] ${limit.key} ALLOW ip=${ip} fresh=${fresh.length}/${limit.limit}`,
-  );
   return { ok: true };
 }
 
