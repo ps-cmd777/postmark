@@ -1,5 +1,7 @@
 # Postmark — Master Project Brief
 
+> **Status: Shipped, deployed, verified.** Live at https://postmark-demo.onrender.com. All eight phases complete. See CLAUDE.md "Post-deploy patches" section for production patch cycle notes.
+
 > **For Claude Code:** This document is the source of truth for the Postmark project. Read this in full at the start of every session. Do not deviate from the architecture or scope without explicit user approval.
 
 ---

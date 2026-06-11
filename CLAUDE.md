@@ -17,9 +17,19 @@ The source of truth for this project is [POSTMARK_PROJECT_BRIEF.md](POSTMARK_PRO
 
 Auth, multi-tenancy, real Statsig/Eppo integration, mobile app, email/Slack notifications, comments, PDF export, versioning, audit logs, admin dashboard. Defer with: "Out of scope for v1."
 
-## Current phase
+## Project status
 
-**Phase 8 — production prep + Render deploy.** Phases 3–7 shipped on main: semantic search, pre-flight verdict (streaming + Zod-validated tool-use), experiment detail pages with cross-reference links, lessons graph (12 hand-curated patterns), and a TypeScript MCP server exposing the corpus to Claude Desktop. Phase 8 adds in-memory rate limiting on the AI-calling routes, commits the seeded SQLite to the repo, ships render.yaml, writes the real README, and runs the security audit before the public push.
+**Shipped.** All phases complete. Live at https://postmark-demo.onrender.com, public repo at github.com/ps-cmd777/postmark. Three production patch cycles applied (see "Post-deploy patches" below).
+
+Phases completed:
+- Phase 1 — Brief, schema, seed data (50 experiments)
+- Phase 2 — Voyage embeddings + sqlite-vec retrieval
+- Phase 3 — Semantic search with Haiku summaries
+- Phase 4 — Pre-flight verdict (Opus tool-use + streaming)
+- Phase 5 — Experiment detail pages with cross-references
+- Phase 6 — Lessons graph (12 hand-curated patterns) + homepage redesign
+- Phase 7 — MCP server (TS-SDK)
+- Phase 8 — Rate limiting, security audit, Render deploy, README
 
 ## Deviations from the brief
 
@@ -28,11 +38,12 @@ These are deliberate; the brief predates them. See the appendix in POSTMARK_PROJ
 - **Deploy target: Render, not Vercel** (brief §6, §9). Vercel's serverless model doesn't fit `better-sqlite3`'s local file; Render runs a long-running Node process.
 - **MCP server: TypeScript + `@modelcontextprotocol/sdk`, not Python + FastMCP** (brief §6, §9, Phase 7). The corpus / retrieval / pattern logic is all in `src/lib`; a TS server imports it directly instead of duplicating it in a Python sidecar.
 
-## Phase 8 — pre-push checklist
+## Post-deploy patches
 
-Before pushing to public GitHub, run both as a final pass:
+Three production patch cycles applied in the first 24 hours after deploy:
 
-- **`/security-review`** — fresh sanity check on the final branch (we did a manual audit in Phase 1, but secrets/RLS/rate-limit drift accumulates).
-- **`/simplify`** — review changed code across the whole project for reuse, dead code, and quality issues before a hiring manager reads it.
+1. **Health check 429** (aa570da). Render's load balancer health checks hit the rate limiter, triggered 429 responses, caused false-positive unavailability alerts. Fix: removed rate-limiting from /api/health entirely. Health endpoints should never be rate-limited.
 
-When wiring up the Anthropic SDK in Phase 2.3+, the **`claude-api`** skill should auto-engage. Let it run — it enforces prompt caching, streaming, and Claude 4.7 conventions the brief mandates anyway.
+2. **Build environment dev-deps** (5e07b4a). Render runs npm install with NODE_ENV=production, which skips devDependencies. Next.js build needed typescript, @tailwindcss/postcss, and @types/* at build time. Fix: changed buildCommand to `npm ci --include=dev && npm run build`. Note: Render's dashboard had a separate buildCommand override taking precedence over render.yaml — had to update both.
+
+3. **Rate-limit XFF rotation** (752003c). Diagnostic logging revealed that on Render+Cloudflare, the last value in x-forwarded-for is Render's internal load-balancer IP, which rotates per request. The standard "take last value" defense against client spoofing produced per-request bucket churn. Fix: take FIRST value of XFF instead. Render+Cloudflare overwrite any client-supplied XFF upstream, so first-value is the trustworthy real-client IP.
