@@ -1,5 +1,7 @@
 # Postmark
 
+![Postmark preflight check showing HIGH RISK verdict with experiment citations](docs/postmark-preflight.png)
+
 A memory layer for product experimentation. Built as a portfolio demonstration of Claude + RAG + structured AI judgment applied to a real product problem.
 
 ## Why this exists
