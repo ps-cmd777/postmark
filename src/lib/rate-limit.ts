@@ -62,19 +62,21 @@ export type RateLimitCheck =
   | { ok: true }
   | { ok: false; retryAfterSec: number };
 
-// Trust only what the proxy appended. x-forwarded-for is a comma list:
-// "<client>, <hop1>, <hop2>, <our-proxy>". The first entries are client-
-// supplied (anyone can send arbitrary XFF headers); the last entry is
-// what Render's edge proxy wrote, which is the actual TCP source IP.
-// Taking the first value is the classic rate-limit-bypass mistake —
-// always take the last value, the one written by your trusted hop.
+// x-forwarded-for on Render is "<client>, <Cloudflare>, <Render LB>".
+// Cloudflare and Render's edge both overwrite any client-supplied XFF
+// before appending hops, so the FIRST value is the real client IP and
+// trustworthy in this deployment. We previously took the last value
+// (the standard "trust only your proxy" rule), but on Render the last
+// hop is an internal load-balancer IP that rotates between requests,
+// so every request landed in a different bucket and the limiter was
+// effectively disabled. If the deployment target ever changes such
+// that the edge no longer overwrites XFF, revisit this.
 function extractIp(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for");
   if (fwd) {
     const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
     if (parts.length > 0) {
-      const last = parts[parts.length - 1];
-      return last.replace(/^::ffff:/, "");
+      return parts[0].replace(/^::ffff:/, "");
     }
   }
   const real = req.headers.get("x-real-ip");
