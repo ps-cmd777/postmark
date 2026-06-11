@@ -2,6 +2,10 @@
 
 A memory layer for product experimentation. Built as a portfolio demonstration of Claude + RAG + structured AI judgment applied to a real product problem.
 
+## Why this exists
+
+Every PM ships experiments that someone on the team already ran two years ago. Search tools don't help — you don't remember the exact phrasing of a 2023 onboarding test, and Confluence search returns 40 irrelevant docs. Postmark answers the question "have we tested this?" semantically, then tells you whether the evidence says you should run it.
+
 ## What it does
 
 **Search past experiments by meaning, not keywords.** Ask "have we tested anything around onboarding gates?" and get a ranked list of relevant past experiments with an AI-written summary citing specific tests.
@@ -74,6 +78,14 @@ npm run mcp:inspect    # opens the MCP inspector UI
 - Database singleton + migrations: `src/lib/db.ts`
 - Rate limiting: `src/lib/rate-limit.ts` (in-memory sliding window)
 - MCP server: `src/mcp/server.ts`
+
+## Notes from building this
+
+- **RAG quality came from the corpus, not the model.** I spent more time hand-curating 50 experiment writeups than tuning prompts. Garbage corpus, garbage answers.
+- **Forced tool-use beats free-text + JSON parsing.** The pre-flight verdict uses `tool_choice` to force Claude to emit a structured `RiskVerdict` object. Eliminates entire classes of parse errors.
+- **Two-call pattern: structured verdict, then streamed analysis.** Call 1 returns the verdict object (50ms parse, deterministic). Call 2 streams the analysis prose grounded in the same precedents. UI shows the verdict immediately, prose fills in.
+- **Render's `x-forwarded-for` includes internal LB IPs that rotate per-request.** The standard "take the last value" rate-limiter pattern fails on Render. First-value extraction works because Cloudflare overwrites client-supplied XFF upstream.
+- **Diagnostic logging is cheap; assumptions are expensive.** Identified the XFF rotation bug in one log read after a day of guessing.
 
 ## Tech notes
 
