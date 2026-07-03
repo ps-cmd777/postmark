@@ -24,7 +24,7 @@ export const PREFLIGHT_TOP_K = 8;
 
 const MODEL = "claude-opus-4-7";
 const VERDICT_MAX_TOKENS = 400;
-const ANALYSIS_MAX_TOKENS = 600;
+const ANALYSIS_MAX_TOKENS = 900;
 const LEARNED_TRUNCATE = 400;
 
 let _client: Anthropic | null = null;
