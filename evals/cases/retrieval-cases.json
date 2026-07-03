@@ -1,0 +1,62 @@
+[
+  {
+    "id": "r_01",
+    "query": "onboarding friction blocking new users",
+    "expected_in_top_5": ["exp_006", "exp_010", "exp_027", "exp_038"],
+    "rationale": "Blocking-onboarding cluster. exp_006 is paused/in-flight but topically relevant — retrieval should surface it."
+  },
+  {
+    "id": "r_02",
+    "query": "push notification fatigue and opt-out rate",
+    "expected_in_top_5": ["exp_003", "exp_017"],
+    "rationale": "The two decided push-fatigue precedents (Pattern 5)."
+  },
+  {
+    "id": "r_03",
+    "query": "aha-moment paywall placement",
+    "expected_in_top_5": ["exp_002", "exp_031", "exp_036"],
+    "rationale": "The aha-moment paywall lineage."
+  },
+  {
+    "id": "r_04",
+    "query": "AI personalization vs static defaults",
+    "expected_in_top_5": ["exp_012", "exp_026", "exp_028"],
+    "rationale": "Pattern 9 cluster — AI personalization negatives + counter-instance."
+  },
+  {
+    "id": "r_05",
+    "query": "localized referral mechanic international payment",
+    "expected_in_top_5": ["exp_025"],
+    "rationale": "Single-item query. Reported as hit@5, not averaged into recall@5. In-flight localizations (exp_004 BR, exp_029 ID) are topically relevant and may also surface but we grade only on decided IDs to keep the signal clean."
+  },
+  {
+    "id": "r_06",
+    "query": "free trial length change and subscription conversion",
+    "expected_in_top_5": ["exp_005"],
+    "rationale": "Single-item query — reported as hit@5. Only decided trial-length experiment."
+  },
+  {
+    "id": "r_07",
+    "query": "contextual home-screen nudge for retention",
+    "expected_in_top_5": ["exp_020", "exp_037"],
+    "rationale": "Pattern 6 cohort-extension nudge cluster."
+  },
+  {
+    "id": "r_08",
+    "query": "skip tutorial for organic search users",
+    "expected_in_top_5": ["exp_001", "exp_019"],
+    "rationale": "Tutorial-skip / fast-path cluster. exp_008 is topically relevant but in-flight; retrieval may surface it and that's fine."
+  },
+  {
+    "id": "r_09",
+    "query": "on-device AI model performance on Android",
+    "expected_in_top_5": ["exp_001", "exp_039"],
+    "rationale": "Pattern 3 territory. exp_022 (on-device auto-categorize) is topically relevant but in-flight; retrieval may include it."
+  },
+  {
+    "id": "r_10",
+    "query": "win-back email campaign for lapsed subscribers",
+    "expected_in_top_5": ["exp_007", "exp_034", "exp_040"],
+    "rationale": "Lapsed-user email cluster with a full range of outcomes."
+  }
+]

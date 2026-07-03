@@ -13,7 +13,10 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
     "mcp": "tsx --env-file-if-exists=.env src/mcp/server.ts",
-    "mcp:inspect": "npx @modelcontextprotocol/inspector tsx --env-file-if-exists=.env src/mcp/server.ts"
+    "mcp:inspect": "npx @modelcontextprotocol/inspector tsx --env-file-if-exists=.env src/mcp/server.ts",
+    "eval:verdict": "tsx --env-file=.env evals/run-verdict-evals.ts",
+    "eval:retrieval": "tsx --env-file=.env evals/run-retrieval-evals.ts",
+    "eval:judge": "tsx --env-file=.env evals/judge-analysis.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

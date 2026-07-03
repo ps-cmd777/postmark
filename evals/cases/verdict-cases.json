@@ -1,0 +1,137 @@
+[
+  {
+    "id": "eval_001",
+    "hypothesis": "Require every new user to add at least one friend before they can reach session 2, so we seed the social graph early and lift long-term retention.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_010", "exp_027"],
+    "must_not_cite": [],
+    "rationale": "Textbook forced-action in onboarding (Pattern 1). exp_010 (mandatory referral wall) and exp_027 (mandatory profile photo) are the two hardened killed precedents."
+  },
+  {
+    "id": "eval_002",
+    "hypothesis": "Force new users to verify their phone number before their first edit — cuts spam accounts and improves trust in the following feed.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_010", "exp_027"],
+    "must_not_cite": [],
+    "rationale": "Same Pattern 1 anti-pattern — a mandatory gated action before reaching the editor. exp_010 and exp_027 are the killed precedents that establish the risk."
+  },
+  {
+    "id": "eval_003",
+    "hypothesis": "Ship a new push notification at hour 6 for users who installed but haven't opened the app, nudging them back in.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_003"],
+    "must_not_cite": [],
+    "rationale": "Revised: relaxed must_cite to [exp_003] only. exp_003 (killed 18-hour re-engagement push) is the primary decided precedent that establishes the push-fatigue risk on its own. exp_017 (reverted push-cap reduction) is secondary corroboration — the model surfaced it in one run but not another, and requiring it was overfitting. Discipline note: relaxed on merits (single precedent is sufficient to establish this named anti-pattern), not because a run failed."
+  },
+  {
+    "id": "eval_004",
+    "hypothesis": "Launch on-device AI portrait generation on all Android devices, including sub-4GB RAM tiers, to keep the feature free of server cost.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_001"],
+    "must_not_cite": [],
+    "rationale": "Revised after initial run: expected_risk raised MEDIUM→HIGH. Pattern 3 (on-device vision on low-RAM Android) is a hardened named anti-pattern, and exp_001 is a decided pattern-member (iterated; the Android crash-rate breach is real precedent even though the overall decision was 'iterated'). The system prompt's HIGH criterion — 'named anti-pattern matches' — is met. Decided-only rule stays for must_cite; iterated counts as decided."
+  },
+  {
+    "id": "eval_005",
+    "hypothesis": "Add a contextual home-screen nudge at day-5 for users who still haven't made a third edit, mirroring the day-2 nudge mechanic.",
+    "expected_risk": "low",
+    "grade_risk_level": true,
+    "must_cite": ["exp_020", "exp_037"],
+    "must_not_cite": [],
+    "rationale": "Direct extension of the Pattern 6 cohort-extension playbook. exp_020 shipped (contextual nudge at session-2), exp_037 shipped (day-2 extension) — both hardened wins."
+  },
+  {
+    "id": "eval_006",
+    "hypothesis": "Show the AI paywall after the user's first successful 'wow' AI edit, not at session 1 as a cold gate.",
+    "expected_risk": "low",
+    "grade_risk_level": true,
+    "must_cite": ["exp_002", "exp_031"],
+    "must_not_cite": [],
+    "rationale": "Aha-moment paywall placement. exp_002 shipped with +28.6% and exp_031 shipped (AI Recolor aha-moment paywall) — both strong decided wins for this exact mechanic."
+  },
+  {
+    "id": "eval_007",
+    "hypothesis": "Ship an iOS-only skip-tutorial fast path for organic-search users — drop them straight into the home screen.",
+    "expected_risk": "low",
+    "grade_risk_level": true,
+    "must_cite": ["exp_019"],
+    "must_not_cite": [],
+    "rationale": "Revised: dropped exp_001 from must_cite. Layer 3 retrieval eval showed exp_001 doesn't surface for tutorial-skip queries (r_08 missed it), which vindicated the model in the initial run. exp_019 (iterated skip-tutorial on paid users) is the reliable decided precedent. Patterns 4 and 12 support LOW."
+  },
+  {
+    "id": "eval_008",
+    "hypothesis": "Localized referral mechanic in Mexico via SPEI bank-transfer integration, mirroring the India UPI approach.",
+    "expected_risk": "medium",
+    "grade_risk_level": true,
+    "must_cite": ["exp_025"],
+    "must_not_cite": [],
+    "rationale": "Only one decided localized-referral precedent (exp_025 India UPI, shipped). exp_004 (BR Pix) and exp_029 (ID QRIS) are in-flight and not citable. A single hardened success is not enough for LOW; MEDIUM reflects genuine 'promising but n=1 decided' uncertainty. NOTE: this case is expected to fail — logged as documented model-over-confidence finding. Model treats in-flight interim data as strong precedent and returns LOW."
+  },
+  {
+    "id": "eval_009",
+    "hypothesis": "Replace the popularity-sorted filter grid with AI-personalized filter recommendations on the home screen for all users.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_012", "exp_028"],
+    "must_not_cite": [],
+    "rationale": "Revised MEDIUM→HIGH. The proposal replaces the popularity baseline — exp_012 is a near-direct rerun (killed at -7.1% edits/session via exploration collapse). exp_028 confirms 'AI vs well-tuned static' fails. exp_026 dropped from must_cite: it's about push subject lines, structurally different from a discovery-surface replacement."
+  },
+  {
+    "id": "eval_010",
+    "hypothesis": "Extend the free trial from 7 to 21 days to give users more time to hit their aha-moment.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_005"],
+    "must_not_cite": [],
+    "rationale": "Revised MEDIUM→HIGH. exp_005 (7→14 trial reverted post-launch on 60% churn spike) is a named-pattern precedent (metric myopia / post_exp_005_playbook tag lineage). Going 7→21 amplifies the exact broken mechanism — the tag-lineage evidence that the corpus treats this as a hardened pattern satisfies the HIGH criterion."
+  },
+  {
+    "id": "eval_011",
+    "hypothesis": "Add comment threads with likes on public edits to boost social engagement and time-in-app.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_015"],
+    "must_not_cite": [],
+    "rationale": "Revised MEDIUM→HIGH. exp_015's inconclusive outcome came with a serious second-order cost — unbudgeted moderation load (410 daily flagged items) and harassment surface expansion. Adding likes amplifies both. The corpus treats this as a named cost pattern, not a coin-flip on lift."
+  },
+  {
+    "id": "eval_012",
+    "hypothesis": "AI-generated 'year in photos' recap email for users who haven't opened Pixmate in 30+ days.",
+    "expected_risk": "high",
+    "grade_risk_level": true,
+    "must_cite": ["exp_007", "exp_021"],
+    "must_not_cite": [],
+    "rationale": "Revised MEDIUM→HIGH. exp_021's light-user cell went negative with a +17.5% opt-out spike on a low-context recap; a 30+ day lapsed cohort is an extreme version of that same low-context state. exp_007 to the same lapsed cohort was inconclusive with only iOS-US converging. Combined signal: recap-to-lapsed is a known permission-budget burn without a positive-lift precedent — HIGH."
+  },
+  {
+    "id": "eval_013",
+    "hypothesis": "Add a stock-trading dashboard inside Pixmate so power users can watch their portfolio while editing photos.",
+    "expected_risk": "low",
+    "grade_risk_level": false,
+    "must_cite": [],
+    "must_not_cite": [],
+    "rationale": "Adversarial: off-domain. No structurally similar precedent exists in the corpus. The system should admit no strong precedent rather than fabricate one. Risk level is not graded here — Layer 2 honesty score does the real work."
+  },
+  {
+    "id": "eval_014",
+    "hypothesis": "Integrate Apple Vision Pro spatial photo editing as a premium feature for Pro subscribers.",
+    "expected_risk": "low",
+    "grade_risk_level": false,
+    "must_cite": [],
+    "must_not_cite": [],
+    "rationale": "Adversarial: no visionOS/spatial precedent in the corpus. Correct behavior is to say so plainly and not overclaim from tangential experiments. Risk level not graded; honesty scored in Layer 2."
+  },
+  {
+    "id": "eval_015",
+    "hypothesis": "Migrate the Pixmate backend from Postgres to DynamoDB to reduce operational cost.",
+    "expected_risk": "low",
+    "grade_risk_level": false,
+    "must_cite": [],
+    "must_not_cite": [],
+    "rationale": "Adversarial: infrastructure decision, not a product experiment. The corpus contains no relevant precedent. Correct behavior is to say the archive doesn't cover this class of decision. Not graded on risk; Layer 2 honesty scores the response."
+  }
+]
