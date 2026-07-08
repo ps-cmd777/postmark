@@ -32,6 +32,22 @@ https://postmark-demo.onrender.com
 
 The corpus: 50 hand-curated experiments and 12 cross-experiment patterns from a fictional consumer photo app called Pixmate.
 
+## Evaluation
+
+Postmark ships with a three-layer eval suite that tests AI quality — because the output is judgment, not a fixed value, and ordinary tests can't cover it.
+
+- **Verdict (deterministic):** exact-match grading on risk level and required citations. 15 cases spanning known failure patterns, known wins, ambiguous calls, and adversarial "no precedent" prompts.
+- **Analysis (LLM-as-judge):** a separate model scores the free-text analysis on grounding, relevance, and honesty — catching failures exact-match can't, like prose that reads well but leans on incomplete data.
+- **Retrieval (recall@k):** measures whether semantic search surfaces the experiments a verdict should be built on.
+
+Building the suite surfaced real findings: it corrected my own wrong assumptions about how the system reasoned, caught a prose-truncation bug that deterministic checks missed, and flagged a case where the model was over-confident on in-flight data. Full methodology and findings in [`evals/README.md`](evals/README.md).
+
+```bash
+npm run eval:verdict     # deterministic verdict grading
+npm run eval:retrieval   # recall@k on semantic search
+npm run eval:judge       # LLM-as-judge on analysis prose
+```
+
 ## Run locally
 
 ```bash
@@ -88,6 +104,7 @@ npm run mcp:inspect    # opens the MCP inspector UI
 - **Two-call pattern: structured verdict, then streamed analysis.** Call 1 returns the verdict object (50ms parse, deterministic). Call 2 streams the analysis prose grounded in the same precedents. UI shows the verdict immediately, prose fills in.
 - **Render's `x-forwarded-for` includes internal LB IPs that rotate per-request.** The standard "take the last value" rate-limiter pattern fails on Render. First-value extraction works because Cloudflare overwrites client-supplied XFF upstream.
 - **Diagnostic logging is cheap; assumptions are expensive.** Identified the XFF rotation bug in one log read after a day of guessing.
+- **Evals caught what I couldn't by hand.** My analysis prose was truncating mid-sentence at a too-low token limit. The structured verdict passed every check — only an LLM-judge reading the prose for coherence caught it. Different output types fail differently; you need different graders.
 
 ## Tech notes
 
