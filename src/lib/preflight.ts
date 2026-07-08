@@ -22,7 +22,7 @@ import { redactSecrets } from "@/lib/redact";
 
 export const PREFLIGHT_TOP_K = 8;
 
-const MODEL = "claude-opus-4-7";
+const MODEL = "claude-opus-4-8";
 const VERDICT_MAX_TOKENS = 400;
 const ANALYSIS_MAX_TOKENS = 900;
 const LEARNED_TRUNCATE = 400;

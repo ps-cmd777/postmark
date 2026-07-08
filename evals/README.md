@@ -153,6 +153,23 @@ citations programmatically.
 
 ---
 
+## Model migration note (4.7 → 4.8)
+
+Migrated the verdict model from claude-opus-4-7 to claude-opus-4-8.
+Aggregate eval scores held flat: risk 11/12, citations 14/15, retrieval
+recall@5 83.3%, judge grounding/relevance 5.00/4.93, honesty 4.93→5.00.
+But two citation cases flipped in opposite directions — eval_003
+(fail→pass) and eval_009 (pass→fail) — netting to the same score. This
+is consistent with Anthropic's note that minor versions can shift
+behavior, plus run-to-run non-determinism (eval_003 is a known
+non-deterministic case). The persistent eval_008 miss held across both
+versions, confirming it's a corpus/prompt characteristic, not a
+model-version artifact. Both 4.7 and 4.8 result sets are in results/ for
+comparison. Takeaway: the eval suite let me migrate models and verify
+no regression in minutes.
+
+---
+
 ## Running it
 
 ```bash

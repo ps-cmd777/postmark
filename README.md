@@ -25,7 +25,7 @@ https://postmark-demo.onrender.com
 - Next.js 16 (App Router) + TypeScript + Tailwind v4
 - Voyage AI embeddings (`voyage-3-large`, 1024 dims) for semantic retrieval
 - `sqlite-vec` for vector search over a local SQLite file — no external vector DB
-- Anthropic Claude Opus 4.7 for the pre-flight verdict (tool-use + streamed prose), Haiku 4.5 for search summaries
+- Anthropic Claude Opus 4.8 for the pre-flight verdict (tool-use + streamed prose), Haiku 4.5 for search summaries
 - All AI responses stream
 - Zod for runtime validation at AI and HTTP boundaries
 - MCP server (TypeScript + `@modelcontextprotocol/sdk`) exposes the same corpus to Claude Desktop
