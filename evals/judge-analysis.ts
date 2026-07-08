@@ -65,7 +65,7 @@ function renderExperiment(exp: ExperimentDetail): string {
     exp.guardrail_metrics.length === 0
       ? "none"
       : exp.guardrail_metrics
-          .map((g) => `${g.name}: ${g.baseline}→${g.treatment} (${g.breach ? "BREACH" : "ok"})`)
+          .map((g) => `${g.name}: ${g.baseline}→${g.treatment} (${g.status === "fail" ? "BREACH" : g.status})`)
           .join("; ");
   return [
     `[${exp.id}] ${exp.title}`,
